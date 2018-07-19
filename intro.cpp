@@ -1,4 +1,5 @@
 #include "headers.h"
+#include "library.hpp"
 vector<int> removeDuplicates(vector<int> input){
   /* Given an integer array A which contains duplicates. Remove duplicates from
    * the array and return a new array without any duplicates. That is, it
@@ -158,14 +159,12 @@ int main()
   // stock span
   int price[]={60, 70, 80, 100, 90, 75, 80, 120};
   int * arr = stockSpan(price, 8);
-  for(int i=0; i<8; i++)
-    cout << arr[i] << ' ';
+  print<int*>(arr, arr+8, " ");
   cout << endl;
 
   int arr2[] = {2,12,9,16,10,5,3,20,25,11,1,8,6};
   vector<int> seq = longestSubsequence(arr2, 13);
-  for(int i=0; i<seq.size(); i++)
-    cout << seq[i] << ' ';
+  print<vector<int>::iterator>(seq.begin(), seq.end(), " ");
   cout << endl;
   return 0;
 }

@@ -1,13 +1,12 @@
 #include "headers.h"
 
-static int primeList[TENSIX] = {2,3,5,7,11,13,17,19,23,29,31,37};
-static int listSize = 12;
-
 int fillPrimeList(int n)
 {
   /* Given an integer N, fill all the prime numbers that lies in between 2 to
    * N (both inclusive). */
-  for(int i=primeList[listSize-1], j; i<=n; ++i)
+  int *primeList = new int[n]; primeList[0] = 2;
+  int listSize = 1;
+  for(int i=2, j; i<=n; ++i)
   {
     // Check if i is prime
     for(j=0; j<listSize; ++j)
@@ -29,9 +28,9 @@ bool isPrime(long n)
   return true;
 }
 
-bitset<TENTEN+1> seive;
 long fillSeive(long n)
 {
+  bitset<TENTEN+1> seive;
   // seive[i] is true for all bits except 0 and 1
   seive.set(); // set all bits to true
   seive.set(0, 0); // set 0th bit to false
@@ -53,9 +52,7 @@ long fillSeive(long n)
 
 int gcd(int a,int b)
 {
-  if(a<b) {
-    int temp = a; a=b; b=temp;
-  }
+  if(a<b) return gcd(b,a);
   // Here a>b
   if(a%b==0) return b;
   return gcd(b, a%b);
@@ -63,24 +60,26 @@ int gcd(int a,int b)
 
 pair<int, pair<int, int> > extendedGCD(int a,int b)
 {
-  if(a<b) {
-    int temp = a; a=b; b=temp;
+  pair<int, pair<int, int> > result;
+  if(a<b)
+  {
+    result = extendedGCD(b,a);
+    int temp = result.second.first;
+    result.second.first = result.second.second;
+    result.second.second = temp;
+    return result;
   }
   // Here a>b
-  pair<int, pair<int, int> > result;
   if(a%b==0)
   {
     result.first = b;
     result.second.first = 0;
     result.second.second = 1;
-    //result.second.first = 1;
-    //result.second.second = (-1)*a/b;
     return result;
   }
   pair<int, pair<int, int> > smallAns = extendedGCD(b, a%b);
   result.first = smallAns.first;
   result.second.first = smallAns.second.second;
-  //result.second.second = smallAns.second.first - floor(a/b)*smallAns.second.second;
   result.second.second = smallAns.second.first - (a/b)*smallAns.second.second;
   return result;
 }
@@ -92,10 +91,9 @@ int modInverse(int a, int m)
   return -1;
 }
 
-
 int main()
 {
-  pair<int, pair<int, int> > ans = extendedGCD(5, 12);
+  pair<int, pair<int, int> > ans = extendedGCD(16, 10);
   cout << "GCD(16,10) = " << ans.first << endl;
   cout << "x = " << ans.second.first << endl;
   cout << "y = " << ans.second.second << endl;

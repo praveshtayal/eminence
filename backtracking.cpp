@@ -1,4 +1,5 @@
 #include "headers.h"
+#include "library.hpp"
 
 bool checkBoard(const vector< vector<int> >& board, int n)
 {
@@ -148,56 +149,104 @@ void ratInAMaze(int maze[][20], int n){
   ratInAMaze(maze, path, 0, 0, n);
 }
 
-int minDistance(vector<int>& solution, vector<int>& stalls, int cows)
+bool isFeasible(vector<int>& stalls, int cows, int distance)
 {
-  int distance = abs(stalls[solution[0]] - stalls[solution[1]]);
-  for(int i=0; i<solution.size(); i++)
-    for(int j=0; j<solution.size(); j++)
-      if( i!=j && abs(stalls[solution[i]] - stalls[solution[j]]) < distance)
-        distance = abs(stalls[solution[i]] - stalls[solution[j]]);
-  return distance;
+  // 1st cow is placed at index prev
+  int prev=0, next, size=stalls.size();
+  while(--cows) {
+    // Try to place next cow at index next
+    for(next=prev+1; next<size && stalls[next]-stalls[prev]<distance; next++);
+    if(next==size) return false;
+    prev = next;
+  }
+  return true;
 }
 
 int aggressiveCows(vector<int>& stalls, int cows)
 {
   if(cows>stalls.size() || cows<0) return 0;
-  if(cows<2)
-  {
-    return INT_MAX;
-  }
 
-  vector<int> candidate, solution;
-  for(int i=0; i<cows; i++)
+  sort(stalls.begin(), stalls.end());
+  int ans=1, min = ans, max = (stalls[stalls.size()-1] - stalls[0]) / (cows-1);
+  while(max>=min)
   {
-    candidate.push_back(i);
-    solution.push_back(i);
+    int mid = (min+max+1)/2;
+    if(isFeasible(stalls, cows, mid)) {
+      ans = mid;
+      min = mid+1;
+    } else
+      max = mid-1;
   }
-  int solutionDistance = minDistance(solution, stalls, cows);
-  return solutionDistance;
+  return ans;
 }
 
-void get2DArray(int arr2D[][20], int row, int col)
+long power(int x, int n)
 {
-  //cin >> row >> col;
-  // Read the array
-  for(int i=0;i<row;++i) 
-    for(int j=0;j<col;++j) 
-      cin >> arr2D[i][j];
+  // Write a program to find x to the power n (i.e. x^n) 
+  if(n<=0) return 1;
+  if(n==1) return x;
+
+  long ans = power(x,n/2);
+  ans *= ans;
+  if(n%2) ans *= x;
+  return ans;
+}
+
+int murder()
+{
+  /* Once detective Saikat was solving a murder case. While going to the crime
+   * scene he took the stairs and saw that a number is written on every stair.
+   * He found it suspicious and decides to remember all the numbers that he has
+   * seen till now. While remembering the numbers he found that he can find
+   * some pattern in those numbers. So he decides that for each number on the
+   * stairs he will note down the sum of all the numbers previously seen on the
+   * stairs which are smaller than the present number. Calculate the sum of all
+   * the numbers written on his notes diary.*/
+  return 0;
+}
+
+#define NINE 9
+bool sudokuSolver(int board[][9]){
+  /* Given a 9*9 sudoku board, in which some entries are filled and others are
+   * 0 (0 indicates that the cell is empty), you need to find out whether the
+   * Sudoku puzzle can be solved or not i.e. return true or false.*/
+  int row[9]={0}, col[9]={0}, box[3][3]={0};
+  for(int i=0; i<NINE; i++)
+  {
+    for(int j=0; j<NINE; j++)
+      cout << board[i][j] ;
+    cout << endl;
+  }
+  for(int i=0; i<NINE; i++)
+    for(int j=0; j<NINE; j++)
+      if(board[i][j]==0)
+      {
+        (row[i])++;
+        (col[j])++;
+        //cout << i << ' ' << j << endl;
+        (box[i/3][j/3])++;
+      }
+  for(int i=0; i<NINE; i++) cout << row[i]; cout << endl;
+  for(int i=0; i<NINE; i++) cout << col[i]; cout << endl;
+  for(int i=0; i<3; i++)
+    for(int j=0; j<3; j++)
+      cout << box[i][j];
+  cout << endl;
+  return true;
 }
 
 int main()
 {
-  placeNQueens(8);
+  //placeNQueens(5);
 
   //int maze[20][20] = { {1,0,1}, {1,1,1}, {1,1,1} };
   /*
   int maze[20][20];
-  int mazeSize; cin >> mazeSize; get2DArray(maze, mazeSize, mazeSize); 
+  int mazeSize; cin >> mazeSize; get2DArray<int, 20>(maze, mazeSize, mazeSize); 
   ratInAMaze(maze, mazeSize);
   */
 
-  // Aggressive Cows
-  /*
+  /* Aggressive Cows
   int testCases; cin >> testCases;
   while(testCases--)
   {
@@ -211,4 +260,9 @@ int main()
     cout << aggressiveCows(stalls, cows) << endl;
   }
   */
+  //int x, n; cin>>x>>n; cout << power(x,n) << endl;
+
+  int sudoku[NINE][NINE];
+  get2DArray<int, NINE>(sudoku, NINE, NINE);
+  cout << (sudokuSolver(sudoku)? "true":"false") << endl;
 }

@@ -7,8 +7,8 @@
 #include <stack>
 #include <queue>
 #include <bitset>
+#include <algorithm>
 #include <climits>
-#include "library.h"
 
 #define HUNDRED 100
 #define THOUSAND 1000
