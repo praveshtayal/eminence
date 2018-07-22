@@ -206,33 +206,283 @@ int murder()
 }
 
 #define NINE 9
-bool sudokuSolver(int board[][9]){
+#define THREE 3
+typedef bitset<NINE> ninebits;
+class sudokuOption {
+  public:
+    sudokuOption(unsigned int n=0)
+    {
+      while(n)
+      {
+        value.set(n%10, 1);
+        n/=10;
+      }
+    }
+
+  private:
+  ninebits value;
+};
+class sudoku {
+  public:
+    sudoku(int _board[][NINE])
+    {
+      // Initialize board
+      for(int i=0; i<NINE; i++)
+        for(int j=0; j<NINE; j++)
+        {
+          board[i][j] = _board[i][j];
+        }
+
+      // Fill row, col and box with zero values
+      zero = 0;
+      for(int i=0; i<NINE; i++) row[i]=0;
+      for(int i=0; i<NINE; i++) col[i]=0;
+      for(int i=0; i<THREE; i++)
+        for(int j=0; j<THREE; j++)
+          box[i][j] = 0;
+
+      // Count no of zeros in each row, col and box
+      for(int i=0; i<NINE; i++)
+        for(int j=0; j<NINE; j++)
+          if(board[i][j]==0)
+          {
+            (row[i])++;
+            (col[j])++;
+            (box[i/THREE][j/THREE])++;
+            zero++;
+          }
+    }
+
+    pair<int, int> chooseCandidate()
+    {
+      pair<int, int> p;
+      p.first = p.second = 10; // Invalid values
+
+      if(zero==0) return p;
+      // cout << "Zero Count is " << zero << endl;
+
+      // Calculate minimum indexs for row, col and box
+      int minRow=0, minCol=0, minBoxI=0, minBoxJ=0;
+      for(int i=1; i<NINE; i++)
+        if(row[i] && row[i]<row[minRow]) minRow = i;
+      for(int i=1; i<NINE; i++)
+        if(col[i] && col[i]<col[minCol]) minCol = i;
+      for(int i=0; i<THREE; i++)
+        for(int j=0; j<THREE; j++)
+          if(box[i][j] && box[i][j]<box[minBoxI][minBoxJ])
+          {
+            minBoxI = i;
+            minBoxJ = j;
+          }
+      // choose fillBox by default
+      bool fillRow=false, fillCol=false, fillBox=false;
+      if(row[minRow]<=col[minCol] && row[minRow]<=box[minBoxI][minBoxJ])
+        fillRow = true; 
+      else if(col[minCol]<=row[minRow] && col[minCol]<=box[minBoxI][minBoxJ])
+        fillCol = true;
+      else
+        fillBox = true;
+      int x=0, y=0;  // they represent row and col index to be attempted
+      if(fillRow)
+      {
+        // choose x, y
+        x = minRow;
+        if(row[minRow]==0)
+        {
+          row[minRow]=10;
+          //print();
+          return chooseCandidate();
+        }
+        for(y=0; y<NINE; y++)
+          if(board[x][y]==0) break;
+      }
+      else if(fillCol)
+      {
+        // choose x, y
+        y = minCol;
+        if(col[minCol]==0)
+        {
+          col[minCol]=10;
+          //print();
+          return chooseCandidate();
+        }
+        for(x=0; x<NINE; x++)
+          if(board[x][y]==0) break;
+      }
+      else
+      {
+        // choose x, y
+        x = minBoxI * THREE;
+        y = minBoxJ * THREE;
+        if(box[minBoxI][minBoxJ]==0)
+        {
+          box[minBoxI][minBoxJ]=10;
+          //print();
+          return chooseCandidate();
+        }
+        for(int i=0; i<THREE; i++)
+          for(int j=0; j<THREE; j++)
+            if(board[x+i][y+j]==0)
+            {
+              x += i;
+              y += j;
+              i = j = THREE; // This ensure exit from loops
+            }
+      }
+      p.first = x;
+      p.second = y;
+      return p;
+    }
+
+    ninebits returnFeasible(pair<int, int> p) const
+    {
+      int x=p.first, y=p.second;
+      if(board[x][y]!=0) return board[x][y];
+      ninebits option;
+      option.set(); // set all bits to true
+      //cout << option.to_string() << endl;
+
+      // Scan the row
+      for(int i=0; i<NINE; i++)
+        if(board[x][i]!=0)
+        {
+          //cout << "Setting " << board[x][i] << " bit to false\n";
+          option.set(board[x][i]-1,0); // set ith bit to false
+        }
+
+      // Scan the col
+      for(int i=0; i<NINE; i++)
+        if(board[i][y]!=0)
+        {
+          //cout << "Setting " << board[i][y] << " bit to false\n";
+          option.set(board[i][y]-1,0); // set ith bit to false
+        }
+
+      // Scan the box
+      int startx = (x/3)*3, starty=(y/3)*3;
+      //cout << "startx starty " << startx << ' ' << starty << endl;
+      for(int i=0; i<THREE; i++)
+        for(int j=0; j<THREE; j++)
+          if(board[startx+i][starty+j]!=0)
+          {
+            //cout << "Setting " << board[startx+i][starty+j] << " bit to false\n";
+            option.set(board[startx+i][starty+j]-1, 0); // set ith bit to false
+          }
+
+      return option;
+    }
+
+    bool set(pair<int,int> p, int value)
+    {
+      int x=p.first, y=p.second;
+      if(board[x][y]!=0) return false;
+      if(value<1 || value>9) return false;
+      //cout << "Setting " << x << " " << y << " " << value << endl;
+      board[x][y] = value;
+
+      // Update zero counts
+      zero--;
+      row[x]--;
+      col[y]--;
+      box[x/THREE][y/THREE]--;
+      return true;
+    }
+
+    bool unset(pair<int,int> p)
+    {
+      int x=p.first, y=p.second;
+      if(board[x][y]==0) return false;
+      board[x][y] = 0;
+
+      // Update zero counts
+      zero++;
+      row[x]++;
+      col[y]++;
+      box[x/THREE][y/THREE]++;
+      return true;
+    }
+
+    bool solved() const
+    {
+      if(zero==0) return true;
+      return false;
+    }
+
+    void print() const
+    {
+      for(int i=0; i<NINE; i++)
+      {
+        for(int j=0; j<NINE; j++)
+          cout << board[i][j] << ' ' ;
+        cout << endl;
+      }
+      cout << endl;
+      printMin();
+    }
+
+    void printMin() const
+    {
+      // Print row, col and box
+      for(int i=0; i<NINE; i++) cout << row[i] << ' '; cout << endl;
+      for(int i=0; i<NINE; i++) cout << col[i] << ' '; cout << endl;
+      for(int i=0; i<THREE; i++)
+        for(int j=0; j<THREE; j++)
+          cout << box[i][j] << ' ';
+      cout << endl;
+    }
+
+    bool solve()
+    {
+      if(solved())
+      {
+        //print();
+        return true;
+      }
+      pair<int, int> p = chooseCandidate();
+      if(p.first==10 || p.second==10)
+      {
+        // No feasilble solution. Backtrack
+        // cout "Something went wrong\n";
+        return false;
+      }
+      //cout << "Attempt at " << p.first << " " << p.second << endl;
+      ninebits option = returnFeasible(p);
+      //cout << "Feasible Option are " << option.to_string() << endl;
+      for(int i=0; i<NINE; i++)
+      {
+        if(option.test(i))
+        {
+          set(p, i+1);
+          bool ans = solve();
+          if(ans) return true;
+          unset(p);
+        }
+      }
+      return false;
+    }
+
+  private:
+    // every Index of board can hold values 0-9, where 0 represents empty
+    // and values 1-9 respresent filled values
+    int board[NINE][NINE];
+    // Represents number of zeros in each row, col or box
+    int row[NINE], col[NINE], box[THREE][THREE];
+    // Stores index of minimum Values
+    // int minRow, minCol, minBoxI, minBoxJ;
+    // Count the number of zeros
+    int zero;
+};
+
+bool sudokuSolver(int board[][NINE]){
   /* Given a 9*9 sudoku board, in which some entries are filled and others are
    * 0 (0 indicates that the cell is empty), you need to find out whether the
    * Sudoku puzzle can be solved or not i.e. return true or false.*/
-  int row[9]={0}, col[9]={0}, box[3][3]={0};
-  for(int i=0; i<NINE; i++)
-  {
-    for(int j=0; j<NINE; j++)
-      cout << board[i][j] ;
-    cout << endl;
-  }
-  for(int i=0; i<NINE; i++)
-    for(int j=0; j<NINE; j++)
-      if(board[i][j]==0)
-      {
-        (row[i])++;
-        (col[j])++;
-        //cout << i << ' ' << j << endl;
-        (box[i/3][j/3])++;
-      }
-  for(int i=0; i<NINE; i++) cout << row[i]; cout << endl;
-  for(int i=0; i<NINE; i++) cout << col[i]; cout << endl;
-  for(int i=0; i<3; i++)
-    for(int j=0; j<3; j++)
-      cout << box[i][j];
-  cout << endl;
-  return true;
+  sudoku s(board);
+  s.print();
+  bool ans = s.solve();
+  s.print();
+  return ans;
+  if(s.solved()) return true;
 }
 
 int main()
@@ -241,25 +491,25 @@ int main()
 
   //int maze[20][20] = { {1,0,1}, {1,1,1}, {1,1,1} };
   /*
-  int maze[20][20];
-  int mazeSize; cin >> mazeSize; get2DArray<int, 20>(maze, mazeSize, mazeSize); 
-  ratInAMaze(maze, mazeSize);
-  */
+     int maze[20][20];
+     int mazeSize; cin >> mazeSize; get2DArray<int, 20>(maze, mazeSize, mazeSize); 
+     ratInAMaze(maze, mazeSize);
+     */
 
   /* Aggressive Cows
-  int testCases; cin >> testCases;
-  while(testCases--)
-  {
-    int stall, stallSize, cows; cin >> stallSize >> cows;
-    vector<int> stalls;
-    for(int i=0; i<stallSize; i++)
-    {
-      cin >> stall;
-      stalls.push_back(stall);
-    }
-    cout << aggressiveCows(stalls, cows) << endl;
-  }
-  */
+     int testCases; cin >> testCases;
+     while(testCases--)
+     {
+     int stall, stallSize, cows; cin >> stallSize >> cows;
+     vector<int> stalls;
+     for(int i=0; i<stallSize; i++)
+     {
+     cin >> stall;
+     stalls.push_back(stall);
+     }
+     cout << aggressiveCows(stalls, cows) << endl;
+     }
+     */
   //int x, n; cin>>x>>n; cout << power(x,n) << endl;
 
   int sudoku[NINE][NINE];
