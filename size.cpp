@@ -13,7 +13,9 @@ int main()
 {
   cout << "Integer " << sizeof(int) << ' ' << INT_MIN << ' ' << INT_MAX << endl;
   cout << "Long " << sizeof(long) << ' ' << LONG_MIN << ' ' << LONG_MAX << endl;
+  cout << "Long Long " << sizeof(long long) << ' ' << LLONG_MIN << ' ' << LLONG_MAX << endl;
 
+  /*
   const rlim_t kStackSize = 16 * 1024 * 1024;   // min stack size = 16 MB
   const rlim_t mb = 1024 * 1024;   // min stack size = 16 MB
   struct rlimit rl;
@@ -39,7 +41,6 @@ int main()
   cout << "rlim_cur = " << rl.rlim_cur/mb << endl;
   cout << "rlim_max = " << rl.rlim_max/mb << endl;
 
-  /* Change stack Size
   if (result == 0)
   {
     if (rl.rlim_cur < kStackSize)
@@ -52,8 +53,7 @@ int main()
       }
     }
   }
-  */
-  /* Cant create array of bigObjects
+
   int localArr[TENSIX];
 
   localArr[TENSIX-1] = 500;

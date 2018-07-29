@@ -259,7 +259,6 @@ class sudoku {
       p.first = p.second = 10; // Invalid values
 
       if(zero==0) return p;
-      // cout << "Zero Count is " << zero << endl;
 
       // Calculate minimum indexs for row, col and box
       int minRow=0, minCol=0, minBoxI=0, minBoxJ=0;
@@ -345,29 +344,19 @@ class sudoku {
       // Scan the row
       for(int i=0; i<NINE; i++)
         if(board[x][i]!=0)
-        {
-          //cout << "Setting " << board[x][i] << " bit to false\n";
           option.set(board[x][i]-1,0); // set ith bit to false
-        }
 
       // Scan the col
       for(int i=0; i<NINE; i++)
         if(board[i][y]!=0)
-        {
-          //cout << "Setting " << board[i][y] << " bit to false\n";
           option.set(board[i][y]-1,0); // set ith bit to false
-        }
 
       // Scan the box
       int startx = (x/3)*3, starty=(y/3)*3;
-      //cout << "startx starty " << startx << ' ' << starty << endl;
       for(int i=0; i<THREE; i++)
         for(int j=0; j<THREE; j++)
           if(board[startx+i][starty+j]!=0)
-          {
-            //cout << "Setting " << board[startx+i][starty+j] << " bit to false\n";
             option.set(board[startx+i][starty+j]-1, 0); // set ith bit to false
-          }
 
       return option;
     }
@@ -417,7 +406,6 @@ class sudoku {
         cout << endl;
       }
       cout << endl;
-      printMin();
     }
 
     void printMin() const
@@ -482,7 +470,19 @@ bool sudokuSolver(int board[][NINE]){
   bool ans = s.solve();
   s.print();
   return ans;
-  if(s.solved()) return true;
+}
+
+distributeCandies(vector<int> boxes, int students)
+{
+  /* Shaky has N (1<=N<=50000) candy boxes each of them contains a non-zero
+   * number of candies (between 1 and 1000000000). Shakey want to distibute
+   * these candies among his K (1<=K<=1000000000) IIIT-Delhi students. He want
+   * to distibute them in a way such that:
+   * 1. All students get equal number of candies.
+   * 2. All the candies which a student get must be from a single box only.
+   * As he want to make all of them happy so he want to give as many candies as
+   * possible. Help Shaky in finding out what is the maximum number of candies
+   * which a student can get. */
 }
 
 int main()
