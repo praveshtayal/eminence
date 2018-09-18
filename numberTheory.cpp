@@ -178,8 +178,25 @@ unsigned long fiboSum(unsigned long m, unsigned long n)
   return (fibM - fibN + c) % c;
 }
 
+int axplusbyisd(int a, int b, int d)
+{
+  /* if ax + by = d for how many values of x and y */
+  int ans=0;
+  if(d%a==0) ans++;
+  if(d%b==0) ans++;
+  if((d+b)%a==0) ans++;
+  if((d+a)%b==0) ans++;
+  return ans;
+}
+
 int main()
 {
+  int testCases; cin >> testCases;
+  while(testCases--) {
+    int a, b, d;
+    cin >> a >> b >> d;
+    cout << axplusbyisd(a, b, d) << endl;
+  }
   /*
   pair<int, pair<int, int> > ans = extendedGCD(16, 10);
   cout << "GCD(16,10) = " << ans.first << endl;

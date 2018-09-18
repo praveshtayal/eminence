@@ -18,6 +18,11 @@ class matrix {
       }
     }
 
+    const T& operator()(int x, int y) const 
+    {
+      return v[x][y];
+    }
+
     T& operator()(int x, int y)
     {
       return v[x][y];
