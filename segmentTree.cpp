@@ -30,15 +30,23 @@ class segmentTree {
     void update(int index, T& value) {
       int i= size+index;
       tree[i] = value;
-      i = (i-1)/2;
-      for(i = (i-1)/2; i>=0; i = (i-1)/2) tree[i] = tree[i*2+1] + tree[i*2+2]; 
+      for(i = (i-1)/2; i>=0; i = (i-1)/2)
+      {
+        tree[i] = tree[i*2+1] + tree[i*2+2]; 
+        if(i==0) return;
+      }
     }
     int query(int index, int left, int right) {
-      if(leftI[index]==left && rightI[index]==right) return tree[index];
+      if(leftI[index]>=left && rightI[index]<=right) return tree[index];
       int ans = 0;
       int leftChild = 2*index + 1;
       int rightChild = 2*index + 2;
-      if(rightI[leftChild]>=leftI[index]) ans += query(leftChild, left, right);
+      if(rightI[leftChild]>=left)
+        ans += query(leftChild, left, right);
+        //ans += query(leftChild, max(left, leftI[leftChild]), min(right, righI();
+      if(leftI[rightChild]<=right)
+        ans += query(rightChild, left, right);
+      return ans;
 
     }
     int query(int left, int right) {
@@ -59,13 +67,34 @@ class segmentTree {
 
 int main()
 {
-  int arr1[] = {10, 20, 30, 40 };
+  int arr1[] = {1, 2, 3, 4 };
   int arr2[] = {10, 20, 30, 40, 50, 60, 70 };
   vector<int> v1 (arr1, arr1+(sizeof(arr1)/sizeof(int)));
   vector<int> v2 (arr2, arr2+(sizeof(arr2)/sizeof(int)));
 
   segmentTree<int> t1(v1), t2(v2);
-  t1.print();
   t2.print();
+  cout << "Press 1 for update and 2 for query: ";
+  int option; cin >> option;
+  while(true)
+  {
+    switch(option) {
+      case 1:
+        cout << "Input index and value: ";
+        int index, value; cin >> index >> value;
+        t2.update(index, value);
+        break;
+      case 2:
+        cout << "Input left and right index: ";
+        int left, right; cin >> left >> right;
+        cout << t2.query(left,right) << endl;
+        break;
+      default:
+        return 0;
+    }
+    t2.print();
+    cout << "Press 1 for update and 2 for query: ";
+    cin >> option;
+  }
 }
 
